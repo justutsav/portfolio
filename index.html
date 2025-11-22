@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 11 Demake</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Boot Screen -->
+    <div id="boot-screen" class="screen active">
+        <div class="boot-content">
+            <div class="win-logo pixelated">
+                <div class="win-square"></div>
+                <div class="win-square"></div>
+                <div class="win-square"></div>
+                <div class="win-square"></div>
+            </div>
+            <div class="spinner pixelated">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lock Screen -->
+    <div id="lock-screen" class="screen">
+        <div class="lock-content">
+            <div class="time-date">
+                <h1 id="lock-time">10:00</h1>
+                <p id="lock-date">Friday, November 22</p>
+            </div>
+            <div class="user-login" id="login-trigger">
+                <div class="avatar pixelated"></div>
+                <h2 class="username">[Your Name]</h2>
+                <p class="status">I like everything</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desktop -->
+    <div id="desktop-screen" class="screen">
+        
+        <!-- Desktop Icons -->
+        <div class="desktop-icons">
+            <div class="icon-container" ondblclick="openWindow('pc')">
+                <div class="icon pc-icon pixelated"></div>
+                <span class="icon-label">This PC</span>
+            </div>
+            <div class="icon-container">
+                <div class="icon bin-icon pixelated"></div>
+                <span class="icon-label">Recycle Bin</span>
+            </div>
+            <div class="icon-container" ondblclick="openWindow('chrome')">
+                <div class="icon chrome-icon pixelated"></div>
+                <span class="icon-label">Chrome</span>
+            </div>
+        </div>
+
+        <!-- Windows Container -->
+        <div id="window-area">
+            <!-- Chrome Window Template -->
+            <div id="window-chrome" class="window" style="display: none; top: 50px; left: 100px; z-index: 10;">
+                <div class="title-bar">
+                    <div class="title-text">Google Chrome</div>
+                    <div class="window-controls">
+                        <button class="control-btn min-btn" onclick="minimizeWindow('chrome')">-</button>
+                        <button class="control-btn max-btn">□</button>
+                        <button class="control-btn close-btn" onclick="closeWindow('chrome')">x</button>
+                    </div>
+                </div>
+                <div class="window-content chrome-content">
+                    <div class="chrome-toolbar">
+                        <button class="nav-btn">←</button>
+                        <button class="nav-btn">→</button>
+                        <button class="nav-btn">↻</button>
+                        <input type="text" class="address-bar" value="localhost:3000/portfolio" readonly>
+                    </div>
+                    <div class="projects-grid" id="projects-container">
+                        <!-- Projects injected via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Start Menu -->
+        <div id="start-menu" class="start-menu" style="display: none;">
+            <div class="start-pinned">
+                <h3>Pinned</h3>
+                <div class="pinned-grid">
+                    <div class="pinned-item">
+                        <div class="pinned-icon pixelated"></div>
+                        <span>About Me</span>
+                    </div>
+                    <div class="pinned-item">
+                        <div class="pinned-icon pixelated"></div>
+                        <span>GitHub</span>
+                    </div>
+                    <div class="pinned-item">
+                        <div class="pinned-icon pixelated"></div>
+                        <span>LinkedIn</span>
+                    </div>
+                </div>
+            </div>
+            <div class="start-recommended">
+                <h3>Recommended</h3>
+                <div class="rec-item">
+                    <div class="rec-icon pixelated"></div>
+                    <div class="rec-text">
+                        <span class="rec-title">Resume.pdf</span>
+                        <span class="rec-time">2h ago</span>
+                    </div>
+                </div>
+            </div>
+            <div class="start-footer">
+                <div class="user-profile">
+                    <div class="footer-avatar pixelated"></div>
+                    <span>[Your Name]</span>
+                </div>
+                <button class="power-btn" onclick="location.reload()">⏻</button>
+            </div>
+        </div>
+
+        <!-- Taskbar -->
+        <div class="taskbar pixelated-blur">
+            <div class="taskbar-center">
+                <button class="task-icon start-btn" onclick="toggleStartMenu()" title="Start">
+                    <div class="win-logo-sm">
+                        <div></div><div></div><div></div><div></div>
+                    </div>
+                </button>
+                <button class="task-icon search-btn" title="Search">🔍</button>
+                <button class="task-icon" onclick="openWindow('chrome')" title="Chrome">
+                    <div class="chrome-icon-sm"></div>
+                </button>
+            </div>
+            <div class="system-tray pixelated-blur">
+                <span class="tray-icon">📶</span>
+                <span class="tray-icon">🔊</span>
+                <span class="tray-icon">🔋</span>
+                <span class="tray-time" id="taskbar-time">10:00</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
