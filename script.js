@@ -1,5 +1,7 @@
 // State Management
 let zIndexCounter = 100;
+
+// Data
 const projects = [
     {
         title: "Retro Game",
@@ -27,6 +29,159 @@ const projects = [
     }
 ];
 
+const fileSystem = {
+    "This PC": [
+        { name: "Local Disk (C:)", type: "drive", icon: "https://img.icons8.com/color/48/hdd.png" }
+    ],
+    "Local Disk (C:)": [
+        { name: "About Me", type: "folder", icon: "https://img.icons8.com/color/48/folder-invoices--v1.png" },
+        { name: "Projects", type: "folder", icon: "https://img.icons8.com/color/48/folder-invoices--v1.png" }
+    ],
+    "About Me": [
+        { name: "aboutme.txt", type: "file", icon: "https://img.icons8.com/color/48/notepad.png", app: "notepad" }
+    ],
+    "Projects": [
+        { name: "projects.html", type: "file", icon: "https://img.icons8.com/color/48/chrome--v1.png", app: "chrome-projects" }
+    ]
+};
+
+// Window Manager Class
+class WindowManager {
+    constructor() {
+        this.windows = {}; // Track active windows
+        this.activeWindowId = null;
+    }
+
+    open(appId, ...args) {
+        const win = document.getElementById(`window-${appId}`);
+        const taskIcon = document.getElementById(`task-${appId}`);
+
+        if (!win) return;
+
+        // If already open and hidden, restore it
+        if (win.classList.contains('hidden')) {
+            this.restore(appId);
+            return;
+        }
+
+        // If already open and active, just bring to front
+        if (win.style.display !== 'none' && !win.classList.contains('hidden')) {
+            this.bringToFront(appId);
+            return;
+        }
+
+        // First time opening or re-opening after close
+        win.style.display = 'flex';
+        win.classList.remove('hidden');
+        this.bringToFront(appId);
+
+        // Update Taskbar
+        if (taskIcon) {
+            taskIcon.classList.add('active');
+            taskIcon.classList.remove('minimized');
+        }
+
+        // Center window if not moved
+        if (!win.dataset.moved) {
+            const desktop = document.getElementById('desktop-screen');
+            const x = (desktop.clientWidth - win.clientWidth) / 2;
+            const y = (desktop.clientHeight - win.clientHeight) / 2;
+            win.style.left = `${x}px`;
+            win.style.top = `${y}px`;
+        }
+
+        // App specific logic
+        if (appId === 'chrome') {
+            if (args[0] === 'projects') {
+                switchChromeMode('projects');
+            } else {
+                switchChromeMode('newtab');
+            }
+        } else if (appId === 'explorer') {
+            renderExplorer('This PC');
+        }
+
+        // Close start menu
+        document.getElementById('start-menu').style.display = 'none';
+    }
+
+    close(appId) {
+        const win = document.getElementById(`window-${appId}`);
+        const taskIcon = document.getElementById(`task-${appId}`);
+
+        if (win) {
+            win.style.display = 'none';
+            win.classList.remove('hidden', 'fullscreen');
+            // Reset position if needed, or keep persistence
+        }
+
+        if (taskIcon) {
+            taskIcon.classList.remove('active', 'minimized');
+        }
+    }
+
+    minimize(appId) {
+        const win = document.getElementById(`window-${appId}`);
+        const taskIcon = document.getElementById(`task-${appId}`);
+
+        if (win) {
+            win.classList.add('hidden');
+        }
+
+        if (taskIcon) {
+            taskIcon.classList.remove('active');
+            taskIcon.classList.add('minimized');
+        }
+    }
+
+    restore(appId) {
+        const win = document.getElementById(`window-${appId}`);
+        const taskIcon = document.getElementById(`task-${appId}`);
+
+        if (win) {
+            win.classList.remove('hidden');
+            this.bringToFront(appId);
+        }
+
+        if (taskIcon) {
+            taskIcon.classList.add('active');
+            taskIcon.classList.remove('minimized');
+        }
+    }
+
+    toggle(appId) {
+        const win = document.getElementById(`window-${appId}`);
+        if (win.classList.contains('hidden') || win.style.display === 'none') {
+            this.open(appId);
+        } else {
+            this.minimize(appId);
+        }
+    }
+
+    maximize(appId) {
+        const win = document.getElementById(`window-${appId}`);
+        if (win) {
+            if (win.classList.contains('fullscreen')) {
+                win.classList.remove('fullscreen');
+                // Restore saved dimensions/pos if we were tracking them
+            } else {
+                win.classList.add('fullscreen');
+            }
+        }
+    }
+
+    bringToFront(appId) {
+        const win = document.getElementById(`window-${appId}`);
+        if (win) {
+            zIndexCounter++;
+            win.style.zIndex = zIndexCounter;
+            this.activeWindowId = appId;
+        }
+    }
+}
+
+const windowManager = new WindowManager();
+
 // Boot Sequence
 window.addEventListener('load', () => {
     setTimeout(() => {
@@ -37,7 +192,7 @@ window.addEventListener('load', () => {
             document.getElementById('lock-screen').classList.add('active');
             startClock();
         }, 500);
-    }, 3500); // 3.5s boot time
+    }, 3500);
 });
 
 // Lock Screen
@@ -47,7 +202,7 @@ document.getElementById('login-trigger').addEventListener('click', () => {
     setTimeout(() => {
         lockScreen.classList.remove('active');
         document.getElementById('desktop-screen').classList.add('active');
-        document.getElementById('desktop-screen').style.display = 'flex'; // Ensure flex display
+        document.getElementById('desktop-screen').style.display = 'flex';
     }, 500);
 });
 
@@ -57,7 +212,7 @@ function startClock() {
         const now = new Date();
         const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const dateString = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
-        
+
         const lockTime = document.getElementById('lock-time');
         const lockDate = document.getElementById('lock-date');
         const taskbarTime = document.getElementById('taskbar-time');
@@ -70,65 +225,27 @@ function startClock() {
     setInterval(updateTime, 1000);
 }
 
-// Window Management
-function openWindow(appId) {
-    const win = document.getElementById(`window-${appId}`);
-    if (win) {
-        win.style.display = 'flex';
-        bringToFront(win);
-        
-        // Center window on first open if not moved
-        if (!win.dataset.moved) {
-            const desktop = document.getElementById('desktop-screen');
-            const x = (desktop.clientWidth - win.clientWidth) / 2;
-            const y = (desktop.clientHeight - win.clientHeight) / 2;
-            win.style.left = `${x}px`;
-            win.style.top = `${y}px`;
-        }
-    }
-    
-    // Close start menu if open
-    document.getElementById('start-menu').style.display = 'none';
-}
-
-function closeWindow(appId) {
-    const win = document.getElementById(`window-${appId}`);
-    if (win) {
-        win.style.display = 'none';
-    }
-}
-
-function minimizeWindow(appId) {
-    const win = document.getElementById(`window-${appId}`);
-    if (win) {
-        win.style.display = 'none';
-    }
-}
-
-function bringToFront(element) {
-    zIndexCounter++;
-    element.style.zIndex = zIndexCounter;
-}
-
 // Drag Logic
 let isDragging = false;
 let currentWindow = null;
 let initialX;
 let initialY;
-let xOffset = 0;
-let yOffset = 0;
 
 document.addEventListener('mousedown', (e) => {
+    // Window Focus Logic
+    const win = e.target.closest('.window');
+    if (win) {
+        const appId = win.dataset.app;
+        if (appId) windowManager.bringToFront(appId);
+    }
+
+    // Drag Logic
     if (e.target.closest('.title-bar')) {
         const win = e.target.closest('.window');
-        if (win) {
+        if (win && !win.classList.contains('fullscreen')) {
             isDragging = true;
             currentWindow = win;
-            bringToFront(win);
-            
-            // Mark as moved so we don't auto-center again
             win.dataset.moved = "true";
-
             initialX = e.clientX - win.offsetLeft;
             initialY = e.clientY - win.offsetTop;
         }
@@ -140,9 +257,6 @@ document.addEventListener('mousemove', (e) => {
         e.preventDefault();
         const currentX = e.clientX - initialX;
         const currentY = e.clientY - initialY;
-
-        // Boundary checks (optional, but good for UX)
-        // For now, just let it fly free like Windows
         currentWindow.style.left = `${currentX}px`;
         currentWindow.style.top = `${currentY}px`;
     }
@@ -154,41 +268,124 @@ document.addEventListener('mouseup', () => {
 });
 
 // Start Menu
-function toggleStartMenu() {
+function toggleStartMenu(search = false) {
     const menu = document.getElementById('start-menu');
     if (menu.style.display === 'none' || menu.style.display === '') {
         menu.style.display = 'flex';
         zIndexCounter++;
-        menu.style.zIndex = zIndexCounter + 100; // Always on top of windows
+        menu.style.zIndex = zIndexCounter + 100;
+
+        if (search) {
+            // Focus search input if we had one in start menu, 
+            // but for now we just open it.
+        }
     } else {
         menu.style.display = 'none';
     }
 }
 
-// Close start menu when clicking outside
 document.addEventListener('click', (e) => {
     const menu = document.getElementById('start-menu');
     const startBtn = document.querySelector('.start-btn');
-    
-    if (menu.style.display === 'flex' && 
-        !menu.contains(e.target) && 
-        !startBtn.contains(e.target)) {
+    const searchBtn = document.querySelector('.search-btn');
+
+    if (menu.style.display === 'flex' &&
+        !menu.contains(e.target) &&
+        !startBtn.contains(e.target) &&
+        !searchBtn.contains(e.target)) {
         menu.style.display = 'none';
     }
 });
 
-// Populate Chrome Projects
-const projectsContainer = document.getElementById('projects-container');
-projects.forEach(proj => {
-    const card = document.createElement('div');
-    card.className = 'project-card';
-    card.onclick = () => window.open(proj.link, '_blank');
-    
-    card.innerHTML = `
-        <img src="${proj.img}" class="project-img pixelated" alt="${proj.title}">
-        <h3 class="project-title">${proj.title}</h3>
-        <p class="project-desc">${proj.desc}</p>
-    `;
-    
-    projectsContainer.appendChild(card);
-});
+// Chrome App Logic
+function switchChromeMode(mode) {
+    const modeA = document.getElementById('chrome-mode-a');
+    const modeB = document.getElementById('chrome-mode-b');
+    const urlBar = document.getElementById('chrome-url');
+
+    if (mode === 'newtab') {
+        modeA.style.display = 'block';
+        modeB.style.display = 'none';
+        urlBar.value = 'New Tab';
+    } else if (mode === 'projects') {
+        modeA.style.display = 'none';
+        modeB.style.display = 'block';
+        urlBar.value = 'localhost:3000/projects.html';
+        renderProjects();
+    }
+}
+
+function handleGoogleSearch(e) {
+    if (e.key === 'Enter') {
+        const query = e.target.value;
+        if (query) {
+            window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+        }
+    }
+}
+
+function renderProjects() {
+    const container = document.getElementById('projects-container');
+    if (container.children.length > 0) return; // Already rendered
+
+    projects.forEach(proj => {
+        const card = document.createElement('div');
+        card.className = 'project-card';
+        card.onclick = () => window.open(proj.link, '_blank');
+
+        card.innerHTML = `
+            <img src="${proj.img}" class="project-img pixelated" alt="${proj.title}">
+            <h3 class="project-title">${proj.title}</h3>
+            <p class="project-desc">${proj.desc}</p>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+// File Explorer Logic
+let currentPath = [];
+
+function renderExplorer(pathName) {
+    const view = document.getElementById('explorer-view');
+    const pathInput = document.getElementById('explorer-path');
+    view.innerHTML = '';
+    pathInput.value = pathName;
+
+    const items = fileSystem[pathName] || [];
+
+    items.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'explorer-item';
+        el.ondblclick = () => handleExplorerItemClick(item);
+
+        el.innerHTML = `
+            <div class="explorer-icon pixelated" style="background-image: url('${item.icon}')"></div>
+            <span class="explorer-label">${item.name}</span>
+        `;
+
+        view.appendChild(el);
+    });
+}
+
+function handleExplorerItemClick(item) {
+    if (item.type === 'drive' || item.type === 'folder') {
+        renderExplorer(item.name);
+    } else if (item.type === 'file') {
+        if (item.app === 'notepad') {
+            windowManager.open('notepad');
+        } else if (item.app === 'chrome-projects') {
+            windowManager.open('chrome', 'projects');
+        }
+    }
+}
+
+function explorerGoUp() {
+    // Simple hardcoded back navigation for this depth
+    const current = document.getElementById('explorer-path').value;
+    if (current === 'About Me' || current === 'Projects') {
+        renderExplorer('Local Disk (C:)');
+    } else if (current === 'Local Disk (C:)') {
+        renderExplorer('This PC');
+    }
+}

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
     <!-- Boot Screen -->
@@ -39,7 +41,7 @@
             </div>
             <div class="user-login" id="login-trigger">
                 <div class="avatar pixelated"></div>
-                <h2 class="username">[Your Name]</h2>
+                <h2 class="username">Utsav</h2>
                 <p class="status">I like everything</p>
             </div>
         </div>
@@ -47,10 +49,10 @@
 
     <!-- Desktop -->
     <div id="desktop-screen" class="screen">
-        
+
         <!-- Desktop Icons -->
         <div class="desktop-icons">
-            <div class="icon-container" ondblclick="openWindow('pc')">
+            <div class="icon-container" ondblclick="windowManager.open('explorer')">
                 <div class="icon pc-icon pixelated"></div>
                 <span class="icon-label">This PC</span>
             </div>
@@ -58,22 +60,24 @@
                 <div class="icon bin-icon pixelated"></div>
                 <span class="icon-label">Recycle Bin</span>
             </div>
-            <div class="icon-container" ondblclick="openWindow('chrome')">
+            <div class="icon-container" ondblclick="windowManager.open('chrome')">
                 <div class="icon chrome-icon pixelated"></div>
                 <span class="icon-label">Chrome</span>
             </div>
         </div>
 
-        <!-- Windows Container -->
+        <!-- Window Area -->
         <div id="window-area">
-            <!-- Chrome Window Template -->
-            <div id="window-chrome" class="window" style="display: none; top: 50px; left: 100px; z-index: 10;">
+            <!-- Templates injected via JS or hidden here -->
+
+            <!-- Chrome Window -->
+            <div id="window-chrome" class="window" style="display: none;" data-app="chrome">
                 <div class="title-bar">
                     <div class="title-text">Google Chrome</div>
                     <div class="window-controls">
-                        <button class="control-btn min-btn" onclick="minimizeWindow('chrome')">-</button>
-                        <button class="control-btn max-btn">□</button>
-                        <button class="control-btn close-btn" onclick="closeWindow('chrome')">x</button>
+                        <button class="control-btn min-btn" onclick="windowManager.minimize('chrome')">-</button>
+                        <button class="control-btn max-btn" onclick="windowManager.maximize('chrome')">□</button>
+                        <button class="control-btn close-btn" onclick="windowManager.close('chrome')">x</button>
                     </div>
                 </div>
                 <div class="window-content chrome-content">
@@ -81,13 +85,84 @@
                         <button class="nav-btn">←</button>
                         <button class="nav-btn">→</button>
                         <button class="nav-btn">↻</button>
-                        <input type="text" class="address-bar" value="localhost:3000/portfolio" readonly>
+                        <input type="text" class="address-bar" id="chrome-url" value="localhost:3000/portfolio"
+                            readonly>
                     </div>
-                    <div class="projects-grid" id="projects-container">
-                        <!-- Projects injected via JS -->
+
+                    <!-- Mode A: New Tab -->
+                    <div id="chrome-mode-a" class="chrome-mode">
+                        <div class="new-tab-content">
+                            <div class="nt-avatar pixelated"></div>
+                            <h1>Hey, I'm Utsav.</h1>
+                            <p>Contact: justutsav.05@gmail.com</p>
+                            <div class="search-container">
+                                <input type="text" class="google-search" placeholder="Search Google or type a URL"
+                                    onkeydown="handleGoogleSearch(event)">
+                            </div>
+                            <button class="view-projects-btn" onclick="switchChromeMode('projects')">View My
+                                Projects</button>
+                        </div>
+                    </div>
+
+                    <!-- Mode B: Projects -->
+                    <div id="chrome-mode-b" class="chrome-mode" style="display: none;">
+                        <div class="projects-grid" id="projects-container">
+                            <!-- Projects injected via JS -->
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- File Explorer Window -->
+            <div id="window-explorer" class="window" style="display: none;" data-app="explorer">
+                <div class="title-bar">
+                    <div class="title-text">File Explorer</div>
+                    <div class="window-controls">
+                        <button class="control-btn min-btn" onclick="windowManager.minimize('explorer')">-</button>
+                        <button class="control-btn max-btn" onclick="windowManager.maximize('explorer')">□</button>
+                        <button class="control-btn close-btn" onclick="windowManager.close('explorer')">x</button>
+                    </div>
+                </div>
+                <div class="window-content explorer-content">
+                    <div class="explorer-toolbar">
+                        <button class="nav-btn" onclick="explorerGoUp()">↑</button>
+                        <input type="text" class="address-bar" id="explorer-path" value="This PC" readonly>
+                    </div>
+                    <div class="explorer-body">
+                        <div class="explorer-sidebar">
+                            <div class="sidebar-item">Desktop</div>
+                            <div class="sidebar-item">Downloads</div>
+                            <div class="sidebar-item">Documents</div>
+                            <div class="sidebar-item">Pictures</div>
+                            <div class="sidebar-item">Music</div>
+                            <div class="sidebar-item">Videos</div>
+                        </div>
+                        <div class="explorer-main" id="explorer-view">
+                            <!-- Files injected via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notepad Window -->
+            <div id="window-notepad" class="window" style="display: none;" data-app="notepad">
+                <div class="title-bar">
+                    <div class="title-text">Notepad</div>
+                    <div class="window-controls">
+                        <button class="control-btn min-btn" onclick="windowManager.minimize('notepad')">-</button>
+                        <button class="control-btn max-btn" onclick="windowManager.maximize('notepad')">□</button>
+                        <button class="control-btn close-btn" onclick="windowManager.close('notepad')">x</button>
+                    </div>
+                </div>
+                <div class="window-content notepad-content">
+                    <textarea class="notepad-area" readonly>Name: Utsav
+Age: 21
+Course: BTech in CSE
+
+I love building things!</textarea>
+                </div>
+            </div>
+
         </div>
 
         <!-- Start Menu -->
@@ -95,16 +170,24 @@
             <div class="start-pinned">
                 <h3>Pinned</h3>
                 <div class="pinned-grid">
-                    <div class="pinned-item">
-                        <div class="pinned-icon pixelated"></div>
-                        <span>About Me</span>
+                    <div class="pinned-item" onclick="windowManager.open('chrome')">
+                        <div class="pinned-icon chrome-icon pixelated"></div>
+                        <span>Chrome</span>
+                    </div>
+                    <div class="pinned-item" onclick="windowManager.open('explorer')">
+                        <div class="pinned-icon pc-icon pixelated"></div>
+                        <span>This PC</span>
+                    </div>
+                    <div class="pinned-item" onclick="windowManager.open('notepad')">
+                        <div class="pinned-icon notepad-icon pixelated"></div>
+                        <span>Notepad</span>
                     </div>
                     <div class="pinned-item">
-                        <div class="pinned-icon pixelated"></div>
+                        <div class="pinned-icon pixelated" style="background-color: #0078d4;"></div>
                         <span>GitHub</span>
                     </div>
                     <div class="pinned-item">
-                        <div class="pinned-icon pixelated"></div>
+                        <div class="pinned-icon pixelated" style="background-color: #0077b5;"></div>
                         <span>LinkedIn</span>
                     </div>
                 </div>
@@ -122,7 +205,7 @@
             <div class="start-footer">
                 <div class="user-profile">
                     <div class="footer-avatar pixelated"></div>
-                    <span>[Your Name]</span>
+                    <span>Utsav</span>
                 </div>
                 <button class="power-btn" onclick="location.reload()">⏻</button>
             </div>
@@ -133,12 +216,29 @@
             <div class="taskbar-center">
                 <button class="task-icon start-btn" onclick="toggleStartMenu()" title="Start">
                     <div class="win-logo-sm">
-                        <div></div><div></div><div></div><div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
                     </div>
                 </button>
-                <button class="task-icon search-btn" title="Search">🔍</button>
-                <button class="task-icon" onclick="openWindow('chrome')" title="Chrome">
+                <button class="task-icon search-btn" onclick="toggleStartMenu(true)" title="Search">🔍</button>
+
+                <!-- App Icons -->
+                <button class="task-icon app-icon" id="task-chrome" onclick="windowManager.toggle('chrome')"
+                    title="Chrome">
                     <div class="chrome-icon-sm"></div>
+                    <div class="active-indicator"></div>
+                </button>
+                <button class="task-icon app-icon" id="task-explorer" onclick="windowManager.toggle('explorer')"
+                    title="File Explorer">
+                    <div class="folder-icon-sm"></div>
+                    <div class="active-indicator"></div>
+                </button>
+                <button class="task-icon app-icon" id="task-notepad" onclick="windowManager.toggle('notepad')"
+                    title="Notepad">
+                    <div class="notepad-icon-sm"></div>
+                    <div class="active-indicator"></div>
                 </button>
             </div>
             <div class="system-tray pixelated-blur">
@@ -152,4 +252,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>
