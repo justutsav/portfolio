@@ -1,0 +1,774 @@
+:root {
+    --bg-color: #f3f3f3;
+    --taskbar-bg: rgba(243, 243, 243, 0.85);
+    --window-bg: #ffffff;
+    --text-color: #000000;
+    --accent-color: #0078d4;
+    --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --radius-xl: 12px;
+}
+
+* {
+    box-sizing: border-box;
+    user-select: none;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    font-family: "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
+    background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop') no-repeat center center fixed;
+    background-size: cover;
+    color: var(--text-color);
+}
+
+/* Boot Screen */
+#boot-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+}
+
+#boot-screen.active {
+    opacity: 1;
+}
+
+.boot-content {
+    text-align: center;
+    color: white;
+}
+
+.win-logo {
+    width: 100px;
+    height: 100px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    margin: 0 auto 40px;
+}
+
+.win-square {
+    background: #0078d4;
+}
+
+.spinner {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.dot:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.dot:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+
+    0%,
+    80%,
+    100% {
+        transform: scale(0);
+    }
+
+    40% {
+        transform: scale(1);
+    }
+}
+
+/* Lock Screen */
+#lock-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9000;
+    transition: transform 0.5s ease-in-out;
+    backdrop-filter: blur(10px);
+}
+
+.lock-content {
+    text-align: center;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.time-date h1 {
+    font-size: 6rem;
+    font-weight: 300;
+    margin: 0;
+}
+
+.time-date p {
+    font-size: 1.5rem;
+    margin-top: 0;
+}
+
+.user-login {
+    margin-top: 60px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #ddd;
+    margin-bottom: 16px;
+    background-image: url('https://github.com/justutsav.png');
+    background-size: cover;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+}
+
+.username {
+    font-size: 2rem;
+    margin: 0;
+}
+
+.status {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+/* Desktop */
+#desktop-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: none;
+    /* Hidden until login */
+    flex-direction: column;
+}
+
+#desktop-screen.active {
+    display: flex;
+}
+
+/* Desktop Icons */
+.desktop-icons {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-wrap: wrap;
+    height: calc(100% - 60px);
+}
+
+.icon-container {
+    width: 80px;
+    height: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.icon-container:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.icon-container:active {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.icon {
+    width: 48px;
+    height: 48px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin-bottom: 4px;
+}
+
+.pc-icon {
+    background-image: url('/assets/This PC.png');
+}
+
+.bin-icon {
+    background-image: url('/assets/Recycle Bin.png');
+}
+
+.chrome-icon {
+    background-image: url('https://img.icons8.com/color/96/chrome--v1.png');
+}
+
+.folder-icon {
+    background-image: url('/assets/File Explorer.png');
+}
+
+.notepad-icon {
+    background-image: url('/assets/Notepad.png');
+}
+
+.icon-label {
+    color: white;
+    font-size: 0.85rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    text-align: center;
+    line-height: 1.2;
+}
+
+/* Window System */
+#window-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.window {
+    position: absolute;
+    background: var(--window-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    min-width: 400px;
+    min-height: 300px;
+    width: 800px;
+    height: 600px;
+    resize: both;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    animation: popIn 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.window.closing {
+    animation: popOut 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+@keyframes popOut {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    to {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+}
+
+.window.fullscreen {
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0;
+}
+
+.window.hidden {
+    display: none !important;
+}
+
+.title-bar {
+    height: 32px;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.title-text {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.window-controls {
+    display: flex;
+}
+
+.control-btn {
+    width: 40px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.control-btn:hover {
+    background: #e0e0e0;
+}
+
+.close-btn:hover {
+    background: #e81123;
+    color: white;
+}
+
+.window-content {
+    flex: 1;
+    overflow: auto;
+    background: white;
+}
+
+/* Taskbar */
+.taskbar-blur {
+    height: 48px;
+    width: 100%;
+    background: rgba(243, 243, 243, 0.85);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 10000;
+    border-top: var(--glass-border);
+}
+
+.taskbar-center {
+    display: flex;
+    gap: 8px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 100%;
+    align-items: center;
+}
+
+.task-icon {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+}
+
+.task-icon:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.task-icon.active {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.task-icon.active .active-indicator {
+    width: 16px;
+    height: 3px;
+    background: var(--accent-color);
+    position: absolute;
+    bottom: 2px;
+    border-radius: 2px;
+}
+
+.task-icon.minimized .active-indicator {
+    width: 6px;
+    background: #888;
+}
+
+.win-logo-sm {
+    width: 24px;
+    height: 24px;
+    background-image: url('https://img.icons8.com/color/48/windows-11.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.chrome-icon-sm {
+    width: 24px;
+    height: 24px;
+    background-image: url('https://img.icons8.com/color/48/chrome--v1.png');
+    background-size: contain;
+}
+
+.folder-icon-sm {
+    width: 24px;
+    height: 24px;
+    background-image: url('/assets/File Explorer.png');
+    background-size: contain;
+}
+
+.notepad-icon-sm {
+    width: 24px;
+    height: 24px;
+    background-image: url('/assets/Notepad.png');
+    background-size: contain;
+}
+
+.system-tray-blur {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.tray-icon {
+    cursor: pointer;
+}
+
+/* Start Menu */
+.start-menu {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 650px;
+    background: rgba(243, 243, 243, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    border: var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    z-index: 10001;
+    animation: slideUp 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translate(-50%, 20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+.start-pinned h3,
+.start-recommended h3 {
+    font-size: 0.9rem;
+    margin: 0 0 16px 0;
+    opacity: 0.7;
+}
+
+.pinned-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.pinned-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+}
+
+.pinned-item:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.pinned-icon {
+    width: 32px;
+    height: 32px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.start-footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+}
+
+.user-profile:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.footer-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-image: url('https://github.com/justutsav.png');
+    background-size: cover;
+}
+
+.power-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.power-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* Chrome App Styles */
+.chrome-toolbar {
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    border-bottom: 1px solid #e0e0e0;
+    background: #f9f9f9;
+}
+
+.nav-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+}
+
+.nav-btn:hover {
+    background: #e0e0e0;
+}
+
+.address-bar {
+    flex: 1;
+    border-radius: 14px;
+    border: 1px solid #ccc;
+    padding: 4px 16px;
+    background: #f1f3f4;
+    font-size: 0.9rem;
+}
+
+.new-tab-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding-top: 100px;
+}
+
+.nt-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-image: url('https://github.com/justutsav.png');
+    background-size: cover;
+    margin-bottom: 24px;
+}
+
+.search-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 24px 0;
+}
+
+.google-search {
+    width: 100%;
+    padding: 12px 24px;
+    border-radius: 24px;
+    border: 1px solid #dfe1e5;
+    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+    font-size: 1rem;
+}
+
+.view-projects-btn {
+    padding: 10px 24px;
+    background: #f8f9fa;
+    border: 1px solid #f8f9fa;
+    border-radius: 4px;
+    color: #3c4043;
+    cursor: pointer;
+}
+
+.view-projects-btn:hover {
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    border-color: #dadce0;
+}
+
+/* Projects Grid */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 24px;
+    padding: 24px;
+}
+
+.project-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.project-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.project-img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+}
+
+.project-title {
+    margin: 12px 16px 4px;
+    font-size: 1.1rem;
+}
+
+.project-desc {
+    margin: 0 16px 16px;
+    font-size: 0.9rem;
+    color: #5f6368;
+}
+
+/* File Explorer */
+.explorer-toolbar {
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.explorer-body {
+    display: flex;
+    height: calc(100% - 49px);
+}
+
+.explorer-sidebar {
+    width: 180px;
+    border-right: 1px solid #e0e0e0;
+    padding: 10px;
+    background: #f9f9f9;
+}
+
+.sidebar-item {
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.sidebar-item:hover {
+    background: #e0e0e0;
+}
+
+.explorer-main {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-content: flex-start;
+}
+
+.explorer-item {
+    width: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.explorer-item:hover {
+    background: #e8f0fe;
+}
+
+.explorer-icon {
+    width: 48px;
+    height: 48px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.explorer-label {
+    font-size: 0.85rem;
+    text-align: center;
+    word-break: break-word;
+}
+
+/* Notepad */
+.notepad-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.notepad-area {
+    flex: 1;
+    border: none;
+    resize: none;
+    padding: 8px;
+    font-family: "Consolas", monospace;
+    font-size: 1rem;
+    outline: none;
+}

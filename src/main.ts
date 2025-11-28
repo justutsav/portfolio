@@ -1,8 +1,30 @@
+import './style.css';
 // State Management
-let zIndexCounter = 100;
+let zIndexCounter: number = 100;
+
+// Interfaces
+interface Project {
+    title: string;
+    img: string;
+    desc: string;
+    link: string;
+}
+
+interface FileSystemItem {
+    name: string;
+    type: 'drive' | 'folder' | 'file';
+    icon: string;
+    app?: string;
+}
+
+interface VirtualFileSystem {
+    [key: string]: FileSystemItem[];
+}
+
+
 
 // Data
-const projects = [
+const projects: Project[] = [
     {
         title: "Retro Game",
         img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2670&auto=format&fit=crop",
@@ -29,31 +51,28 @@ const projects = [
     }
 ];
 
-const fileSystem = {
+const fileSystem: VirtualFileSystem = {
     "This PC": [
-        { name: "Local Disk (C:)", type: "drive", icon: "https://img.icons8.com/color/48/hdd.png" }
+        { name: "Local Disk (C:)", type: "drive", icon: "/assets/This PC.png" }
     ],
     "Local Disk (C:)": [
-        { name: "About Me", type: "folder", icon: "https://img.icons8.com/color/48/folder-invoices--v1.png" },
-        { name: "Projects", type: "folder", icon: "https://img.icons8.com/color/48/folder-invoices--v1.png" }
-    ],
-    "About Me": [
-        { name: "aboutme.txt", type: "file", icon: "https://img.icons8.com/color/48/notepad.png", app: "notepad" }
-    ],
-    "Projects": [
-        { name: "projects.html", type: "file", icon: "https://img.icons8.com/color/48/chrome--v1.png", app: "chrome-projects" }
+        { name: "About Me", type: "folder", icon: "/assets/File Explorer.png" },
+        { name: "Projects", type: "folder", icon: "/assets/File Explorer.png" }
     ]
 };
 
 // Window Manager Class
 class WindowManager {
+    windows: { [key: string]: HTMLElement };
+    activeWindowId: string | null;
+
     constructor() {
         this.windows = {}; // Track active windows
         this.activeWindowId = null;
     }
 
-    open(appId, ...args) {
-        const win = document.getElementById(`window-${appId}`);
+    open(appId: string, ...args: any[]) {
+        const win = document.getElementById(`window-${appId}`) as HTMLElement;
         const taskIcon = document.getElementById(`task-${appId}`);
 
         if (!win) return;
@@ -92,10 +111,12 @@ class WindowManager {
         // Center window if not moved
         if (!win.dataset.moved) {
             const desktop = document.getElementById('desktop-screen');
-            const x = (desktop.clientWidth - win.clientWidth) / 2;
-            const y = (desktop.clientHeight - win.clientHeight) / 2;
-            win.style.left = `${x}px`;
-            win.style.top = `${y}px`;
+            if (desktop) {
+                const x = (desktop.clientWidth - win.clientWidth) / 2;
+                const y = (desktop.clientHeight - win.clientHeight) / 2;
+                win.style.left = `${x}px`;
+                win.style.top = `${y}px`;
+            }
         }
 
         // App specific logic
@@ -114,10 +135,11 @@ class WindowManager {
         }
 
         // Close start menu
-        document.getElementById('start-menu').style.display = 'none';
+        const startMenu = document.getElementById('start-menu');
+        if (startMenu) startMenu.style.display = 'none';
     }
 
-    close(appId) {
+    close(appId: string) {
         const win = document.getElementById(`window-${appId}`);
         const taskIcon = document.getElementById(`task-${appId}`);
 
@@ -136,7 +158,7 @@ class WindowManager {
         }
     }
 
-    minimize(appId) {
+    minimize(appId: string) {
         const win = document.getElementById(`window-${appId}`);
         const taskIcon = document.getElementById(`task-${appId}`);
 
@@ -150,7 +172,7 @@ class WindowManager {
         }
     }
 
-    restore(appId) {
+    restore(appId: string) {
         const win = document.getElementById(`window-${appId}`);
         const taskIcon = document.getElementById(`task-${appId}`);
 
@@ -165,8 +187,9 @@ class WindowManager {
         }
     }
 
-    toggle(appId) {
+    toggle(appId: string) {
         const win = document.getElementById(`window-${appId}`);
+        if (!win) return;
         // Check if hidden OR display is none
         if (win.classList.contains('hidden') || win.style.display === 'none') {
             this.open(appId);
@@ -175,7 +198,7 @@ class WindowManager {
         }
     }
 
-    maximize(appId) {
+    maximize(appId: string) {
         const win = document.getElementById(`window-${appId}`);
         if (win) {
             if (win.classList.contains('fullscreen')) {
@@ -186,11 +209,11 @@ class WindowManager {
         }
     }
 
-    bringToFront(appId) {
+    bringToFront(appId: string) {
         const win = document.getElementById(`window-${appId}`);
         if (win) {
             zIndexCounter++;
-            win.style.zIndex = zIndexCounter;
+            win.style.zIndex = zIndexCounter.toString();
             this.activeWindowId = appId;
         }
     }
@@ -201,7 +224,7 @@ const windowManager = new WindowManager();
 // Boot Sequence
 window.addEventListener('load', () => {
     // Play sound
-    const audio = document.getElementById('startup-sound');
+    const audio = document.getElementById('startup-sound') as HTMLAudioElement;
     if (audio) {
         audio.volume = 0.5;
         // Browsers block autoplay, so we might need interaction, 
@@ -211,33 +234,44 @@ window.addEventListener('load', () => {
 
     setTimeout(() => {
         const bootScreen = document.getElementById('boot-screen');
-        bootScreen.style.opacity = '0';
-        setTimeout(() => {
-            bootScreen.classList.remove('active');
-            document.getElementById('lock-screen').classList.add('active');
-            startClock();
-        }, 500);
+        if (bootScreen) {
+            bootScreen.style.opacity = '0';
+            setTimeout(() => {
+                bootScreen.classList.remove('active');
+                bootScreen.style.display = 'none'; // Prevent blocking clicks
+                const lockScreen = document.getElementById('lock-screen');
+                if (lockScreen) lockScreen.classList.add('active');
+                startClock();
+            }, 500);
+        }
     }, 3500);
 });
 
 // Lock Screen
-document.getElementById('login-trigger').addEventListener('click', () => {
-    const lockScreen = document.getElementById('lock-screen');
-    lockScreen.style.transform = 'translateY(-100%)';
+// Lock Screen
+// Lock Screen
+const lockScreen = document.getElementById('lock-screen');
+if (lockScreen) {
+    lockScreen.addEventListener('click', () => {
+        lockScreen.style.transform = 'translateY(-100%)';
 
-    // Try playing sound again on interaction if missed
-    const audio = document.getElementById('startup-sound');
-    if (audio && audio.paused) {
-        audio.currentTime = 0;
-        audio.play().catch(e => console.log("Audio play failed:", e));
-    }
+        // Try playing sound again on interaction if missed
+        const audio = document.getElementById('startup-sound') as HTMLAudioElement;
+        if (audio && audio.paused) {
+            audio.currentTime = 0;
+            audio.play().catch(e => console.log("Audio play failed:", e));
+        }
 
-    setTimeout(() => {
-        lockScreen.classList.remove('active');
-        document.getElementById('desktop-screen').classList.add('active');
-        document.getElementById('desktop-screen').style.display = 'flex';
-    }, 500);
-});
+        setTimeout(() => {
+            lockScreen.classList.remove('active');
+            const desktop = document.getElementById('desktop-screen');
+            if (desktop) {
+                desktop.classList.add('active');
+                desktop.style.display = 'flex';
+            }
+        }, 500);
+    });
+}
 
 // Clock
 function startClock() {
@@ -260,21 +294,22 @@ function startClock() {
 
 // Drag Logic
 let isDragging = false;
-let currentWindow = null;
-let initialX;
-let initialY;
+let currentWindow: HTMLElement | null = null;
+let initialX: number = 0;
+let initialY: number = 0;
 
 document.addEventListener('mousedown', (e) => {
+    const target = e.target as HTMLElement;
     // Window Focus Logic
-    const win = e.target.closest('.window');
+    const win = target.closest('.window') as HTMLElement;
     if (win) {
         const appId = win.dataset.app;
         if (appId) windowManager.bringToFront(appId);
     }
 
     // Drag Logic
-    if (e.target.closest('.title-bar')) {
-        const win = e.target.closest('.window');
+    if (target.closest('.title-bar')) {
+        const win = target.closest('.window') as HTMLElement;
         if (win && !win.classList.contains('fullscreen')) {
             isDragging = true;
             currentWindow = win;
@@ -320,10 +355,12 @@ document.addEventListener('mouseup', () => {
 // Start Menu
 function toggleStartMenu(search = false) {
     const menu = document.getElementById('start-menu');
+    if (!menu) return;
+
     if (menu.style.display === 'none' || menu.style.display === '') {
         menu.style.display = 'flex';
         zIndexCounter++;
-        menu.style.zIndex = zIndexCounter + 100;
+        menu.style.zIndex = zIndexCounter.toString();
 
         if (search) {
             // Focus search input if we had one in start menu, 
@@ -338,36 +375,40 @@ document.addEventListener('click', (e) => {
     const menu = document.getElementById('start-menu');
     const startBtn = document.querySelector('.start-btn');
     const searchBtn = document.querySelector('.search-btn');
+    const target = e.target as Node;
 
-    if (menu.style.display === 'flex' &&
-        !menu.contains(e.target) &&
-        !startBtn.contains(e.target) &&
-        !searchBtn.contains(e.target)) {
+    if (menu && menu.style.display === 'flex' &&
+        !menu.contains(target) &&
+        startBtn && !startBtn.contains(target) &&
+        searchBtn && !searchBtn.contains(target)) {
         menu.style.display = 'none';
     }
 });
 
 // Chrome App Logic
-function switchChromeMode(mode) {
+function switchChromeMode(mode: string) {
     const modeA = document.getElementById('chrome-mode-a');
     const modeB = document.getElementById('chrome-mode-b');
-    const urlBar = document.getElementById('chrome-url');
+    const urlBar = document.getElementById('chrome-url') as HTMLInputElement;
 
-    if (mode === 'newtab') {
-        modeA.style.display = 'block';
-        modeB.style.display = 'none';
-        urlBar.value = 'New Tab';
-    } else if (mode === 'projects') {
-        modeA.style.display = 'none';
-        modeB.style.display = 'block';
-        urlBar.value = 'localhost:3000/projects.html';
-        renderProjects();
+    if (modeA && modeB && urlBar) {
+        if (mode === 'newtab') {
+            modeA.style.display = 'block';
+            modeB.style.display = 'none';
+            urlBar.value = 'New Tab';
+        } else if (mode === 'projects') {
+            modeA.style.display = 'none';
+            modeB.style.display = 'block';
+            urlBar.value = 'localhost:3000/projects.html';
+            renderProjects();
+        }
     }
 }
 
-function handleGoogleSearch(e) {
+function handleGoogleSearch(e: KeyboardEvent) {
     if (e.key === 'Enter') {
-        const query = e.target.value;
+        const target = e.target as HTMLInputElement;
+        const query = target.value;
         if (query) {
             window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
         }
@@ -376,6 +417,7 @@ function handleGoogleSearch(e) {
 
 function renderProjects() {
     const container = document.getElementById('projects-container');
+    if (!container) return;
     if (container.children.length > 0) return; // Already rendered
 
     projects.forEach(proj => {
@@ -394,17 +436,20 @@ function renderProjects() {
 }
 
 // File Explorer Logic
-let currentPath = [];
+let currentPath: string[] = [];
 
-function renderExplorer(pathName) {
+function renderExplorer(pathName: string) {
     const view = document.getElementById('explorer-view');
-    const pathInput = document.getElementById('explorer-path');
+    const pathInput = document.getElementById('explorer-path') as HTMLInputElement;
+
+    if (!view || !pathInput) return;
+
     view.innerHTML = '';
     pathInput.value = pathName;
 
     const items = fileSystem[pathName] || [];
 
-    items.forEach(item => {
+    items.forEach((item: FileSystemItem) => {
         const el = document.createElement('div');
         el.className = 'explorer-item';
         el.ondblclick = () => handleExplorerItemClick(item);
@@ -418,7 +463,7 @@ function renderExplorer(pathName) {
     });
 }
 
-function handleExplorerItemClick(item) {
+function handleExplorerItemClick(item: FileSystemItem) {
     if (item.type === 'drive' || item.type === 'folder') {
         renderExplorer(item.name);
     } else if (item.type === 'file') {
@@ -432,10 +477,21 @@ function handleExplorerItemClick(item) {
 
 function explorerGoUp() {
     // Simple hardcoded back navigation for this depth
-    const current = document.getElementById('explorer-path').value;
+    const pathInput = document.getElementById('explorer-path') as HTMLInputElement;
+    if (!pathInput) return;
+
+    const current = pathInput.value;
     if (current === 'About Me' || current === 'Projects') {
         renderExplorer('Local Disk (C:)');
     } else if (current === 'Local Disk (C:)') {
         renderExplorer('This PC');
     }
 }
+
+// Assign to window
+(window as any).windowManager = windowManager;
+(window as any).toggleStartMenu = toggleStartMenu;
+(window as any).switchChromeMode = switchChromeMode;
+(window as any).handleGoogleSearch = handleGoogleSearch;
+(window as any).explorerGoUp = explorerGoUp;
+(window as any).renderExplorer = renderExplorer;
