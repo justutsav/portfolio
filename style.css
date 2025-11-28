@@ -229,11 +229,11 @@ body {
 }
 
 .pc-icon {
-    background-image: url('https://img.icons8.com/color/96/monitor--v1.png');
+    background-image: url('assets/This PC.png');
 }
 
 .bin-icon {
-    background-image: url('https://img.icons8.com/color/96/trash--v1.png');
+    background-image: url('assets/Recycle Bin.png');
 }
 
 .chrome-icon {
@@ -241,7 +241,7 @@ body {
 }
 
 .folder-icon {
-    background-image: url('https://img.icons8.com/color/96/folder-invoices--v1.png');
+    background-image: url('assets/File Explorer.png');
 }
 
 .icon-label {
@@ -678,14 +678,14 @@ body {
 .folder-icon-sm {
     width: 24px;
     height: 24px;
-    background-image: url('https://img.icons8.com/color/48/folder-invoices--v1.png');
+    background-image: url('assets/File Explorer.png');
     background-size: contain;
 }
 
 .notepad-icon-sm {
     width: 24px;
     height: 24px;
-    background-image: url('https://img.icons8.com/color/48/notepad.png');
+    background-image: url('assets/Notepad.png');
     background-size: contain;
 }
 
@@ -772,11 +772,11 @@ body {
 }
 
 .pinned-icon.pc-icon {
-    background-image: url('https://img.icons8.com/color/48/monitor--v1.png');
+    background-image: url('assets/This PC.png');
 }
 
 .pinned-icon.notepad-icon {
-    background-image: url('https://img.icons8.com/color/48/notepad.png');
+    background-image: url('assets/Notepad.png');
 }
 
 .start-recommended {
